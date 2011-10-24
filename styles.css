@@ -1,0 +1,33 @@
+.googlecollab_right {
+    text-align: right;
+}
+
+.googlecollab_google_frame_writer {
+    width: 100%;
+    overflow: auto;
+    height: 700px;
+}
+
+.googlecollab_google_frame_reader {
+    width: 100%;
+    overflow: auto;
+    height: 700px;
+}
+
+
+.googlecollab_docs_message, .googlecollab_docs_message_all  {
+    color: #ff0000;
+}
+
+input[type="text"].googlecollab_user_textfield {
+    width: 70%;
+}
+
+.googlecollab_error {
+    color: #ff0000;
+}
+
+.docbrowserwarn {
+    width: 80%;
+    font-style: italic;
+}
