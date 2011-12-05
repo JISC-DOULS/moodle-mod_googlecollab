@@ -78,6 +78,8 @@ class googlecollab  {
         $this->patt_tutorgroup = '/^(.+?) TG \[(\d*)\] (.+)$/';
         $this->patt_clustergroup = '/^(.+?) combined (tutor )?group$/';
 
+        $this->siteconfig = get_config('mod_googlecollab');
+
         if ($pageinstance) {
             $googlecollab = $DB->get_record('googlecollab', array('id' => $actid), '*', MUST_EXIST);
             $course = $DB->get_record('course',
@@ -93,10 +95,8 @@ class googlecollab  {
 
             $this->renderer = $PAGE->get_renderer('mod_googlecollab');
 
-            $this->siteconfig = get_config('mod_googlecollab');
-
             if (!empty($this->siteconfig->gapps_consumerws)) {
-                $this->get_secret_from_ws();
+                $this->siteconfig->gapps_consumersecret = $this->get_secret_from_ws();
             }
 
             $this->modcontext = get_context_instance(CONTEXT_MODULE, $this->cm->id);
@@ -132,7 +132,7 @@ class googlecollab  {
             //Call failed
             throw new moodle_exception('Call to Google web service failed. Google docs cannot be accessed.');
         }
-        $this->siteconfig->gapps_consumersecret = $secret;
+        return $secret;
     }
 
 
@@ -887,8 +887,15 @@ class googleapps_oauth extends curl {
     public function __construct( $options) {
         $options['cache'] = false;
         parent::__construct($options);
-        $this->consumerkey = get_config('mod_googlecollab', 'gapps_consumerkey');
-        $this->consumersecret = get_config('mod_googlecollab', 'gapps_consumersecret');
+        $googlecollabinst = googlecollab::get_instance(null, false);
+        if (!empty($googlecollabinst->siteconfig->gapps_consumerws) &&
+            empty($googlecollabinst->siteconfig->gapps_consumersecret)) {
+            //Because we had to call googlecollab with no page instance need to get secret from ws
+            $googlecollabinst->siteconfig->gapps_consumersecret =
+                $googlecollabinst->get_secret_from_ws();
+        }
+        $this->consumerkey = $googlecollabinst->siteconfig->gapps_consumerkey;
+        $this->consumersecret = $googlecollabinst->siteconfig->gapps_consumersecret;
     }
 
     /**
