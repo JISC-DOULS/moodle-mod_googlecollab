@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/googlecllab/db" VERSION="20110914" COMMENT="XMLDB file for Moodle mod/googlecollab"
+<XMLDB PATH="mod/googlecllab/db" VERSION="20111205" COMMENT="XMLDB file for Moodle mod/googlecollab"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -37,7 +37,7 @@
     <TABLE NAME="googlecollab_cache" COMMENT="Cache records for download documents" PREVIOUS="googlecollab_docs">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="docid"/>
-        <FIELD NAME="docid" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="etag"/>
+        <FIELD NAME="docid" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="etag"/>
         <FIELD NAME="etag" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="docid" NEXT="filepath"/>
         <FIELD NAME="filepath" TYPE="text" LENGTH="small" NOTNULL="true" SEQUENCE="false" PREVIOUS="etag"/>
       </FIELDS>
