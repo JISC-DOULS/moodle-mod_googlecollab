@@ -21,9 +21,10 @@
  */
 
 function xmldb_mod_googlecollab_uninstall() {
-    global $DB;
+    global $DB, $CFG;
+    require_once(dirname(dirname(__FILE__)) . '/locallib.php');
     //If every instance runs delete then just do a clear up
-    fulldelete($CFG->dataroot . '/' . self::TEMPDIR);
+    fulldelete($CFG->tempdir . '/' . googlecollab::TEMPDIR);
     return true;
 
 }

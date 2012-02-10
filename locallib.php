@@ -55,7 +55,7 @@ class googlecollab  {
     const USEEMAIL = 1;
 
     const GOOGLELISTDATASCOPE = 'https://docs.google.com/feeds/';
-    const TEMPDIR = 'temp/googlecollab';
+    const TEMPDIR = 'googlecollab';
 
     const NEWDOC = 0;
     const NEWSHEET = 1;
@@ -733,7 +733,7 @@ class googlecollab  {
             $sql = "SELECT * FROM {googlecollab_cache} WHERE " . $DB->sql_compare_text('docid') . " = ?";
             $cache = $DB->get_record_sql($sql, array($docid));
             if ($cache) {
-                fulldelete($CFG->dataroot . '/' . self::TEMPDIR . '/' . $cache->filepath);
+                fulldelete($CFG->tempdir . '/' . self::TEMPDIR . '/' . $cache->filepath);
                 $sql = $DB->sql_compare_text('docid') . " = ?";
                 $DB->delete_records_select('googlecollab_cache', $sql, array($docid));
             }
@@ -783,7 +783,7 @@ class googlecollab  {
         //use cache and cache file still exists
         //Note etags don't work for presentations will always get new.
         if (($saved_etag == $etag) &&
-            (file_exists($CFG->dataroot . '/' . self::TEMPDIR . '/' . $saved_local_path))) {
+            (file_exists($CFG->tempdir . '/' . self::TEMPDIR . '/' . $saved_local_path))) {
             $local_path =  $saved_local_path;
             //var_dump('USING CACHE');
         } else {
@@ -839,7 +839,7 @@ class googlecollab  {
         $rec = $DB->get_record_sql($sql, array($docid));
 
         if ($rec) {
-            fulldelete($CFG->dataroot . '/' . self::TEMPDIR . '/' . $rec->filepath);//delete old file
+            fulldelete($CFG->tempdir . '/' . self::TEMPDIR . '/' . $rec->filepath);//delete old file
             $update = new stdClass();
             $update->id = $rec->id;
             $update->docid = $docid;
@@ -1305,7 +1305,7 @@ EOF;
         if ($extension == '.pdf' && !strpos($filedata, 'stream')) {
             return false;
         }
-        $ret = make_upload_directory(googlecollab::TEMPDIR);
+        $ret = make_temp_directory(googlecollab::TEMPDIR);
 
         $tmpfile = tempnam($ret, 'googlecollab');
         //rename with extension to make serving easier

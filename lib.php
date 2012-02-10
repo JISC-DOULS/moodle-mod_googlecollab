@@ -291,7 +291,7 @@ function googlecollab_pluginfile($course, $cm, $context, $filearea, $args, $forc
     require_course_login($course, true, $cm);
 
     $filename = $args[0];
-    $filepath = $CFG->dataroot . '/' . googlecollab::TEMPDIR . '/' . $filename;
+    $filepath = $CFG->tempdir . '/' . googlecollab::TEMPDIR . '/' . $filename;
     if (!file_exists($filepath)) {
         return false;
     }
