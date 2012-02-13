@@ -73,8 +73,8 @@ if ($action == 'create') {
              //filepicker is designed for one file but you get the contents as a string which is not convenient.
             //TODO test all file formats - should be convertable to document, spreadsheet or presentation
             $mform->formhandle->addElement('filemanager', 'template', get_string('template', 'googlecollab'), null, array('subdirs' => 0,
-                 'maxbytes' => $maxbytes, 'maxfiles' => 1,  'accepted_types' => array('*.doc',
-                 '*.rtf', '*.docx', '*.xls', '*.ppt', '*.csv', '*.pps')));
+                 'maxbytes' => $maxbytes, 'maxfiles' => 1,  'accepted_types' => array('.doc',
+                 '.rtf', '.docx', '.xls', '.ppt', '.csv', '.pps')));
 
 
             //actual files -> drafts with this draft id, so now associated with this instance
@@ -94,8 +94,8 @@ if ($action == 'create') {
 
         //offer the update option - the file exists but the activity has not yet been setup on google
         $mform->formhandle->addElement('filemanager', 'template', get_string('template', 'googlecollab'), null, array('subdirs' => 0,
-             'maxbytes' => $maxbytes, 'maxfiles' => 1,  'accepted_types' => array('*.doc',
-             '*.rtf', '*.docx', '*.xls', '*.ppt', '*.csv', '*.pps')));
+             'maxbytes' => $maxbytes, 'maxfiles' => 1,  'accepted_types' => array('.doc',
+             '.rtf', '.docx', '.xls', '.ppt', '.csv', '.pps')));
 
 
         //actual files -> drafts with this draft id, so now associated with this instance

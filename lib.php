@@ -266,7 +266,48 @@ function googlecollab_get_js_module() {
     );
 }
 
+/**
+ * File browsing support for googlecollab module.
+ * @param object $browser
+ * @param object $areas
+ * @param object $course
+ * @param object $cm
+ * @param object $context
+ * @param string $filearea
+ * @param int $itemid
+ * @param string $filepath
+ * @param string $filename
+ * @return file_info instance Representing an actual file or folder (null if not found
+ * or cannot access)
+ */
+function mod_googlecollab_get_file_info($browser, $areas, $course, $cm, $context, $filearea,
+        $itemid, $filepath, $filename) {
+    global $CFG, $USER;
 
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return null;
+    }
+    if ($filearea != 'template') {
+        return null;
+    }
+
+    //User has permission
+    if (!has_capability('mod/googlecollab:manage', $context)) {
+        return null;
+    }
+
+    $fs = get_file_storage();
+    $filepath = is_null($filepath) ? '/' : $filepath;
+    $filename = is_null($filename) ? '.' : $filename;
+    if (!($storedfile = $fs->get_file($context->id, 'mod_googlecollab', $filearea, $itemid,
+            $filepath, $filename))) {
+        return null;
+    }
+
+    $urlbase = $CFG->wwwroot . '/pluginfile.php';
+    return new file_info_stored($browser, $context, $storedfile, $urlbase, $filearea,
+            $itemid, true, true, false);
+}
 
 
 /**
