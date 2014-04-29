@@ -237,7 +237,8 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
     }
 
     public function render_gdoc_link($link) {
-        $out = html_writer::start_tag('p');
+        $out = html_writer::tag('p', get_string('doclinkdesc', 'googlecollab'));
+        $out .= html_writer::start_tag('p');
         $out.= html_writer::tag('a', get_string('doclinktext', 'googlecollab'),
             array('href' => $link, 'id' => 'gdoclink'));
         $out .= html_writer::end_tag('p');
@@ -280,7 +281,7 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
         $table->head = array($groupname, $template);
         //$table->attributes['class'] = 'generaltable';
         $fs = get_file_storage();
-        $context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+        $context = context_module::instance($googlecollab->cm->id);
 
         foreach ($groups_slice as $groupid => $group) {
 
@@ -447,7 +448,7 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
         $table->head = array($groupnamehd, $createdhd, $resethd, $userhd, $aclhd);
         // $table->attributes['class'] = 'generaltable';
         $fs = get_file_storage();
-        $context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+        $context = context_module::instance($googlecollab->cm->id);
 
         foreach ($docs_slice as $docid => $doc) {
 
@@ -530,7 +531,7 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
 
         global $CFG, $USER;
 
-        //  $context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+        //  $context = context_module::instance($googlecollab->cm->id);
 
         $groupmode = groups_get_activity_groupmode($googlecollab->cm);
 
@@ -594,17 +595,19 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
             return false;
         }
 
-        if (get_device_type() == 'mobile' || get_user_device_type() == 'mobile') {
+        if (core_useragent::get_device_type() == 'mobile' || core_useragent::get_user_device_type() == 'mobile') {
+            if (strpos($url, 'https://docs.google.com') !== false) {
+                return '';// As link is to google will try and open in drive app - so skip.
+            }
             return html_writer::tag('a', get_string('readonlylink', 'googlecollab'),
                 array('href' => $url));
         }
 
         $outstr = "";
 
-        $helptext =  $this->output->help_icon('whyreadonly', 'googlecollab');
-        $outstr.= $this->output->heading(get_string('readonly', 'googlecollab').$helptext, 3);
-        $outstr.= html_writer::tag('iframe', '', array('id'=>'googlecollab_googlewindow',
-            'src'=>$url, 'class'=>'googlecollab_google_frame_reader') );
+        $outstr.= html_writer::tag('iframe', '', array('id' => 'googlecollab_googlewindow',
+            'src' => $url, 'class' => 'googlecollab_google_frame_reader', 'allowfullscreen' => 'true',
+                'mozallowfullscreen' => true, 'webkitallowfullscreen' => true));
         return $outstr;
 
     }
@@ -619,7 +622,7 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
     public function groups_nogroups($googlecollab) {
         global $DB, $OUTPUT;
         $fs = get_file_storage();
-        $context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+        $context = context_module::instance($googlecollab->cm->id);
         $files = $fs->get_area_files($context->id, 'mod_googlecollab', 'template', 0, null, false);
         $havetemplate = count($files);
         $doc = $DB->get_record('googlecollab_docs',
@@ -659,7 +662,7 @@ class mod_googlecollab_renderer extends plugin_renderer_base {
 
     public function documenteditor($url) {
 
-        if (get_device_type() == 'mobile' || get_user_device_type() == 'mobile') {
+        if (core_useragent::get_device_type() == 'mobile' || core_useragent::get_user_device_type() == 'mobile') {
             return $this->render_gdoc_link($url);
         }
 

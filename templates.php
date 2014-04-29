@@ -34,7 +34,7 @@ $page = optional_param('page', 0, PARAM_INT);
 $cmid = $id = optional_param('id', 0, PARAM_INT);
 $cm = get_coursemodule_from_id('googlecollab', $id, 0, false, MUST_EXIST);
 $googlecollab = googlecollab::get_instance($cm->instance);
-$context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+$context = context_module::instance($googlecollab->cm->id);
 require_capability('mod/googlecollab:manage', $context );
 
 $PAGE->set_url('/mod/googlecollab/templates.php', array('id' => $googlecollab->cm->id));

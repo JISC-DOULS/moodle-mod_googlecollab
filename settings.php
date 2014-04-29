@@ -24,13 +24,14 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(__FILE__) . '/locallib.php');
-
+$choices = array(
+        0 => get_string('usermail_username', 'googlecollab'),
+        1 => get_string('usermail_mail', 'googlecollab')
+    );
 
 $settings->add(new admin_setting_configselect('mod_googlecollab/usermail',
     get_string('usermail', 'googlecollab'),
-    get_string('usermail_desc', 'googlecollab'), googlecollab::USENAME,
-   googlecollab::google_usermail_settings_choice()
+    get_string('usermail_desc', 'googlecollab'), 0, $choices
     ));
 
 $settings->add(new admin_setting_configtext('mod_googlecollab/staffmailsuffix',
@@ -38,10 +39,14 @@ $settings->add(new admin_setting_configtext('mod_googlecollab/staffmailsuffix',
     get_string('staffmailsuffix_desc', 'googlecollab'), '',
    PARAM_TEXT));
 
+$choices = array(
+        0 => get_string('groupmode_off', 'googlecollab'),
+        1 => get_string('groupmode_on', 'googlecollab')
+    );
+
 $settings->add(new admin_setting_configselect('mod_googlecollab/gappgroups',
     get_string('groupsenabled', 'googlecollab'),
-    get_string('groupsenabled_desc', 'googlecollab'), googlecollab::GROUPMODE_OFF,
-    googlecollab::google_mode_settings_choice()
+    get_string('groupsenabled_desc', 'googlecollab'), 0, $choices
     ));
 
 $settings->add(new admin_setting_configtext('mod_googlecollab/gapps_googleappsdomain',

@@ -41,7 +41,7 @@ class mod_googlecollab_mod_form extends moodleform_mod {
         global $COURSE;
         $mform =& $this->_form;
 
-        //$coursecontext = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+        //$coursecontext = context_course::instance($COURSE->id);
 
         //-------------------------------------------------------------------------------
         //Adding the "general" fieldset, where all the common settings are showed

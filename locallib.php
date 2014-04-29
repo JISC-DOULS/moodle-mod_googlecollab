@@ -99,7 +99,7 @@ class googlecollab  {
                 $this->siteconfig->gapps_consumersecret = $this->get_secret_from_ws();
             }
 
-            $this->modcontext = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+            $this->modcontext = context_module::instance($this->cm->id);
         }
 
     }
@@ -457,7 +457,7 @@ class googlecollab  {
         if ($this->siteconfig->usermail == self::USENAME) {
             $domain = $this->siteconfig->gapps_googleappsdomain;
             if ($this->siteconfig->staffmailsuffix != '') {
-                $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+                $context = context_module::instance($this->cm->id);
                 //Is user staff? Base this on capability as too hard to determine by role
                 if (has_capability('mod/googlecollab:viewall', $context, $userid)) {
                     $username = $username . $this->siteconfig->staffmailsuffix;
@@ -754,6 +754,10 @@ class googlecollab  {
         if (!$filepath) {
             return false;
         }
+        if (strpos($filepath, '/embed?') || strpos($filepath, '/pub?')) {
+            // We've been given a google url for embedding.
+            return $filepath;
+        }
         $filename = basename($filepath);
         return file_encode_url($CFG->wwwroot.'/pluginfile.php', '/' . $this->modcontext->id .
             '/mod_googlecollab/google/' . $filename);
@@ -761,6 +765,7 @@ class googlecollab  {
 
     /**
      * Download a document from Google for local display
+     * For spreadsheets will publish and use embed instead if possible.
      *
      * @param string $docid
      * @return string
@@ -768,17 +773,30 @@ class googlecollab  {
 
     public function fetch_doc_for_reading($docid) {
         global $CFG;
-        $googleapps_docs = googleapps_docs::get_instance();
+        $googleappsdocs = googleapps_docs::get_instance();
 
         list($saved_etag, $saved_local_path) = $this->get_saved_etag($docid);
 
-        $ret = $googleapps_docs->get_download_link($docid);
+        $ret = $googleappsdocs->get_download_link($docid);
 
         if ( $ret === false) {
             return false;
         }
 
         list($download_link, $type, $etag)  = $ret;
+
+        // For spreadsheets try and publish and use embed rather than downloaded pdf.
+        if ($type == 'presentation' || $type == 'spreadsheet') {
+            $published = $googleappsdocs->publish_doc($docid, $type);
+            if ($published) {
+                $docid = str_replace("$type:", '', $docid);
+                if ($type == 'spreadsheet') {
+                    return "https://docs.google.com/spreadsheet/pub?key=$docid&output=html&widget=true";
+                } else {
+                    return "https://docs.google.com/presentation/d/$docid/embed?start=false&loop=false&delayms=3000";
+                }
+            }
+        }
 
         //use cache and cache file still exists
         //Note etags don't work for presentations will always get new.
@@ -788,7 +806,7 @@ class googlecollab  {
             //var_dump('USING CACHE');
         } else {
             //var_dump('GETTING FRESH FILE');
-            $local_path = basename($googleapps_docs->download_and_save($download_link, $type));
+            $local_path = basename($googleappsdocs->download_and_save($download_link, $type));
             if (!$local_path) {
                 return false;
             }
@@ -936,7 +954,7 @@ class googleapps_oauth extends curl {
      * @return boolean
      */
 
-    public function request($url, $options) {
+    public function request($url, $options = array()) {
 
         return parent::request($url, $options);
 
@@ -1305,6 +1323,11 @@ EOF;
         if ($extension == '.pdf' && !strpos($filedata, 'stream')) {
             return false;
         }
+        if ($extension == '.htm') {
+            // Update any relative urls made by Google (e.g. css in spreadsheets).
+            $filedata = str_replace('"/static/', '"https://drive.google.com/static/', $filedata);
+        }
+
         $ret = make_temp_directory(googlecollab::TEMPDIR);
 
         $tmpfile = tempnam($ret, 'googlecollab');
@@ -1389,6 +1412,60 @@ EOF;
     }
 
     /**
+     * Attempts to publish doc so can be used for embedding
+     * @param string $docid
+     * @param string $doctype
+     * @return boolean publish success
+     */
+    public function publish_doc($docid, $doctype = 'presentation') {
+        global $CFG;
+        $docid = urlencode($docid);
+        $data = <<<EOF
+<?xml version='1.0' encoding='UTF-8'?>
+<entry xmlns="http://www.w3.org/2005/Atom" xmlns:docs="http://schemas.google.com/docs/2007"
+    xmlns:gd="http://schemas.google.com/g/2005">
+    <category scheme="http://schemas.google.com/g/2005#kind"
+        term="http://schemas.google.com/docs/2007#$doctype" />
+    <docs:publish value="true" />
+    <docs:publishAuto value="true" />
+    <docs:publishOutsideDomain value="true" />
+</entry>
+EOF;
+        $data = trim($data);
+
+        $baseurl = "https://docs.google.com/feeds/default/private/full/$docid/revisions/0";
+        $user = $this->adminuser;
+
+        $params = array('xoauth_requestor_id' => $user);
+        $connector = new googleapps_oauth(array('debug' => 0));
+        $connector->sign_request($baseurl, $params,
+                array('GData-Version: 3.0', 'If-Match: *', 'Content-Type: application/atom+xml'), 'PUT');
+
+        $url = $baseurl . '?' . $connector->implode_assoc('=', '&', $params);
+
+        $file = tempnam($CFG->tempdir . '/googlecollab/', 'gct');
+        file_put_contents($file, $data);
+        $ret = $connector->put($url, array('file' => $file), array('CURLOPT_HEADER' => false, 'CURLOPT_USERPWD' => null));
+        unlink($file);
+        // Always get error, even when doc is published. See:
+        // http://stackoverflow.com/questions/5708638/google-documents-list-api-how-to-publish-a-document .
+        // Try and access doc to verify if successful.
+        $connector->resetopt();
+        $connector = new curl();
+        $docid = str_replace("$doctype%3A", '', $docid);
+        $url = "https://docs.google.com/$doctype/d/$docid/embed";
+        if ($doctype == 'spreadsheet') {
+            $url = "https://docs.google.com/spreadsheet/pub?key=$docid&output=html&widget=true";
+        }
+        $ret = $connector->get($url);
+        if ($connector->info['http_code'] == 200) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Returns whether user is on domain *No way of checking this using docs list api
      * Use alternate methods for now...
      * @param $email
@@ -1397,7 +1474,7 @@ EOF;
 
         if (isset($_SERVER['HTTP_SAMS_USER_AUTHIDS'])) {
             //SAMS authentication
-            if (strpos($_SERVER['HTTP_SAMS_USER_AUTHIDS'], 'GOOGLE') !== false) {
+            if (strpos($_SERVER['HTTP_SAMS_USER_AUTHIDS'], 'GOOGLE') !== false || empty($CFG->debugdisplay)) {
                 return true;
             } else {
                 return false;

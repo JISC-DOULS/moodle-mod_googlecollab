@@ -80,7 +80,7 @@ class restore_googlecollab_activity_structure_step extends restore_activity_stru
         //Template files itemids relate to group id - update for a new context?
         $fs = get_file_storage();
         $cm = get_coursemodule_from_instance('googlecollab', $this->newitemidis);
-        $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+        $context = context_module::instance($cm->id);
         $files = $fs->get_area_files($context->id, 'mod_googlecollab', 'template');
         foreach ($files as $filerec) {
             if ($newgroupid = $this->get_mappingid('group', $filerec->get_itemid())) {

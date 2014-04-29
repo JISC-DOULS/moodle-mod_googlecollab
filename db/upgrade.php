@@ -84,5 +84,32 @@ function xmldb_googlecollab_upgrade($oldversion=0) {
     /// Final return of upgrade result (true/false) to Moodle. Must be
     /// always the last line in the script
 
+    if ($oldversion < 2011092601) {
+
+        // Define key docid (unique) to be dropped form googlecollab_cache
+        $table = new xmldb_table('googlecollab_cache');
+        $key = new xmldb_key('docid', XMLDB_KEY_UNIQUE, array('docid'));
+
+        // Launch drop key docid ** MUST DROP KEY BEFORE CHANGE OF TYPE
+        $dbman->drop_key($table, $key);
+
+        // Changing type of field docid on table googlecollab_cache to char
+        $table = new xmldb_table('googlecollab_cache');
+        $field = new xmldb_field('docid', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
+
+        // Launch change of type for field docid
+        $dbman->change_field_type($table, $field);
+
+         // Define key docid (unique) to be added to googlecollab_cache
+        $table = new xmldb_table('googlecollab_cache');
+        $key = new xmldb_key('docid', XMLDB_KEY_UNIQUE, array('docid'));
+
+        // Launch add key docid ** REINSTATE KEY
+        $dbman->add_key($table, $key);
+
+        // googlecllab savepoint reached
+        upgrade_mod_savepoint(true, 2011092601, 'googlecollab');
+    }
+
     return $result;
 }

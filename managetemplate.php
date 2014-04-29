@@ -39,17 +39,18 @@ $action = required_param('action',  PARAM_ALPHA);
 $cmid = $id = optional_param('id', 0, PARAM_INT);
 $cm = get_coursemodule_from_id('googlecollab', $id, 0, false, MUST_EXIST);
 $googlecollab = googlecollab::get_instance($cm->instance);
-$context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+$context = context_module::instance($googlecollab->cm->id);
 require_capability('mod/googlecollab:manage', $context );
-//$context_course = get_context_instance(CONTEXT_COURSE, $googlecollab->course->id);
+//$context_course = context_course::instance($googlecollab->course->id);
 
-$PAGE->set_url('/mod/googlecollab/templates.php', array('id' => $googlecollab->cm->id));
+$PAGE->set_url('/mod/googlecollab/managetemplate.php', array('id' => $googlecollab->cm->id,
+        'group' => $groupid, 'mode' => $mode, 'action' => $action));
 $PAGE->set_title($googlecollab->googlecollab->name);
 $PAGE->set_heading($googlecollab->course->shortname);
 $PAGE->navbar->add(get_string('createupdatetemplate', 'googlecollab'));
 
 $fs = get_file_storage();
-$context = get_context_instance(CONTEXT_MODULE, $googlecollab->cm->id);
+$context = context_module::instance($googlecollab->cm->id);
 $files = $fs->get_area_files($context->id, 'mod_googlecollab', 'template', $groupid, null, false);
 $havetemplate = count($files);
 $doc = $DB->get_record('googlecollab_docs', array('actid' => $googlecollab->googlecollab->id, 'groupid' => $groupid));
@@ -74,7 +75,7 @@ if ($action == 'create') {
             //TODO test all file formats - should be convertable to document, spreadsheet or presentation
             $mform->formhandle->addElement('filemanager', 'template', get_string('template', 'googlecollab'), null, array('subdirs' => 0,
                  'maxbytes' => $maxbytes, 'maxfiles' => 1,  'accepted_types' => array('.doc',
-                 '.rtf', '.docx', '.xls', '.ppt', '.csv', '.pps')));
+                 '.rtf', '.docx', '.xls', '.ppt', '.csv', '.pps', '.pptx', '.xlsx')));
 
 
             //actual files -> drafts with this draft id, so now associated with this instance
@@ -125,7 +126,6 @@ if ($mform->is_cancelled()) {
     redirect($url);
 
 } else if ($fromform = $mform->get_data()) {
-
 
     file_save_draft_area_files($draftitemid, $context->id,
      'mod_googlecollab', 'template', $groupid,

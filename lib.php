@@ -182,13 +182,7 @@ function googlecollab_scale_used($googlecollabid, $scaleid) {
  * @return boolean True if the scale is used by any googlecollab
  */
 function googlecollab_scale_used_anywhere($scaleid) {
-    global $DB;
-    //TODO looks to me like the wrong params passed and it will throw a PHP exception
-    if ($scaleid and $DB->record_exists('googlecollab', 'grade', -$scaleid)) {
-        return true;
-    } else {
-        return false;
-    }
+    return false;
 }
 
 
@@ -237,7 +231,7 @@ function googlecollab_delete_instance($id) {
 
     $cm = get_coursemodule_from_instance('googlecollab', $id);
     //delete any template files in the file system
-    $context = get_context_instance(CONTEXT_MODULE, $cm->id);
+    $context = context_module::instance($cm->id);
 
     $fs = get_file_storage();
     $fs->delete_area_files($context->id, 'googlecollab', 'template');

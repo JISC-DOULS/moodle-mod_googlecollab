@@ -112,16 +112,16 @@ if ($showsharedoc &&
     if (empty($sharingurl)) {
         throw new moodle_exception('googleerror', 'googlecollab');
     }
+    $readingurl = $googlecollab->get_reading_link($docid);
     $usercheck = $googlecollab->check_user_in_google();
-    //Note: Presentations can't be edited in iframe - they have different link so check for this
-    if (!$shared || !$usercheck || strpos($sharingurl, 'present')) {
-        //Show the read only instead
-        echo $googlecollab->renderer->render_gdoc_link($sharingurl);
-        $readingurl = $googlecollab->get_reading_link($docid);
+    // Show doc with/without editing link.
+    if (!$shared || !$usercheck) {
+        // Show the read only instead.
         echo $googlecollab->renderer->documentreader($readingurl);
         $loginfo = 'viewreaddoc';
     } else {
-        echo $googlecollab->renderer->documenteditor($sharingurl);
+        echo $googlecollab->renderer->render_gdoc_link($sharingurl);
+        echo $googlecollab->renderer->documentreader($readingurl);
     }
 
 } else {

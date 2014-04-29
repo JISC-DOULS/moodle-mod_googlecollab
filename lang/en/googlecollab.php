@@ -46,7 +46,8 @@ $string['usermail_mail'] = 'Email from profile';
 $string['staffmailsuffix'] = 'Suffix added to mail address of non students';
 $string['staffmailsuffix_desc'] = 'If set (and username@domain selected) the value will be added after the username when creating the Google mail address for non-students.';
 $string['notyetsetup'] = 'Not yet setup';
-$string['doclinktext'] = 'Edit document in Google';
+$string['doclinkdesc'] = 'A read only preview of the document is shown below. Full document interactivity, including editing, is available within Google Drive only.';
+$string['doclinktext'] = 'Edit document in Google Drive';
 $string['readonlylink'] = 'View read-only version of document';
 $string['docbrowserwarn'] = 'Please note that some browsers or browser settings may prevent the Google document from displaying on this page. The document can also be accessed directly by using the edit link below.';
 $string['pluginadministration'] = 'Google Collaborative Activity administration';
@@ -76,7 +77,7 @@ $string['currentgroup'] = 'Current group: ';
 $string['coursegrouptemplate'] = 'Default template for course group';
 $string['managedocuments'] = 'Manage Documents';
 $string['managedocumentsintro'] = 'You can reset any activity here. This will delete the Google document and the document will be started again.
-<br/>You can also add an individual to the document sharing list to give them editing access in Google Docs.';
+<br/>You can also add an individual to the document sharing list to give them editing access in Google Drive.';
 $string['nodocumentsyet'] = 'No documents have been created yet';
 $string['documentslist'] = 'Documents List';
 $string['coursegroup'] = 'Course Group';
@@ -117,6 +118,7 @@ $string['googleappsadminuser_desc'] = 'For example: name@gapps-acct.yourdomain.c
 $string['prelink'] = 'Use redirect to Google Docs';
 $string['prelink_desc'] = 'When presenting links to Google documents append the actual url to the url set e.g. www.myplace.com?googledoc=https://www.google... . Use if you want to implement extra user checking etc.';
 
+$string['googlecollab:addinstance'] = 'Add a new Google collaborative activity';
 $string['googlecollab:viewall'] = 'Read only access to all Google documents in the activity (also treated as non-student for sharing)';
 $string['googlecollab:viewdoc'] = 'Access to view the collaborative document';
 $string['emailerror'] = 'Invalid email address';
@@ -124,4 +126,4 @@ $string['emailerror'] = 'Invalid email address';
 $string['readonly'] = 'Read Only Mode';
 $string['sharingerror'] = 'There was an error whilst trying to share the document. You will now be shown the read only version.';
 $string['whyreadonly'] = 'Why is this Read Only?';
-$string['whyreadonly_help'] = 'Presentations can only be edited directly within Google, you are not a member of this group or you do not have a Google Apps account with this institution.';
+$string['whyreadonly_help'] = 'You are not a member of this group or you do not have a Google Apps account with this institution.';
