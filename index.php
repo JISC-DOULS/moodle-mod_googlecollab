@@ -40,8 +40,11 @@ if (! $course = $DB->get_record('course', array('id' => $id))) {
 
 require_course_login($course);
 
-add_to_log($course->id, 'googlecollab', 'view', "index.php?id=$course->id", '');
-
+$event = \mod_googlecollab\event\course_module_instance_list_viewed::create(array(
+        'context' => context_course::instance($id)
+));
+$event->add_record_snapshot('course', $course);
+$event->trigger();
 /// Print the header
 
 $PAGE->set_url('/mod/googlecollab/view.php', array('id' => $id));

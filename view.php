@@ -159,5 +159,10 @@ if ($showsharedoc &&
 // Finish the page
 echo $OUTPUT->footer();
 
-add_to_log($googlecollab->course->id, 'googlecollab', 'view', "view.php?id=" . $googlecollab->cm->id,
-   $loginfo, $googlecollab->cm->id);
+$params = array(
+        'context' => $googlecollab->modcontext,
+        'objectid' => $cm->instance,
+        'other' => array('loginfo' => $loginfo)
+);
+$event = \mod_googlecollab\event\course_module_viewed::create($params);
+$event->trigger();

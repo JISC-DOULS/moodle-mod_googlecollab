@@ -14,19 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
+ * The mod_googlecollab instance list viewed event.
  *
- * @package mod
- * @subpackage googlecollab
- * @copyright 2011 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_googlecollab
+ * @copyright  2014 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_googlecollab\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2014080500;
-$plugin->requires = 2014051200;// Requires this Moodle version.
-$plugin->cron = 0; // Period for cron to check this module (secs).
-$plugin->component = 'mod_googlecollab';
-$plugin->maturity = MATURITY_BETA;
+/**
+ * The mod_googlecollab instance list viewed event class.
+ *
+ * @package    mod_googlecollab
+ * @since      Moodle 2.7
+ * @copyright  2014 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+    // No need for any code here as everything is handled by the parent class.
+}
